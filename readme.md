@@ -23,13 +23,13 @@ A resistance welder with these Functions:
 			Arduino micro controler to rule the the whole pile and run the code.
 
 
-works with the circuit, DIYspotwelder4.pdf   
-circuit is an adaptation from Albert van Dalen's board
+works with the circuit, [DIYspotwelder4.pdf](https://github.com/nuljon/DIYspotWelder4/blob/master/DIYspotwelder4.pdf)
+which is an adaptation from Albert van Dalen's board
 http://www.avdweb.nl/arduino/hardware-interfacing/spot-welder-controller.html
 
 
 It is preferred to start weld pulse at peak power. For inductive loads on AC,
-the amperage over time will follow the voltage by 90 degress. So calculate the 
+the amperage over time will follow the voltage by 90 degrees. So calculate the 
 weld start time based on mains voltage zero crossing points.
 
 MAINS POWER where I live is delivered by 60Hz sinus cycle
