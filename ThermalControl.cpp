@@ -11,9 +11,10 @@ void ThermalControl::begin(void)
 {
 	pinMode(thermPin, INPUT);
 	pinMode(fanPin, OUTPUT);
+	pinMode(welderPin, OUTPUT);
 	lcd.begin(16, 2);
 	configured = loadThermalConfig();
-	if (!configured) {
+	if (!configured) {						// assign defaults
 		thermalControlData.version = 4;
 		thermalControlData.activationThreshold = 150;
 		thermalControlData.cutOff = 350;
@@ -58,13 +59,14 @@ int ThermalControl::getTemperature(void)
 		//Serial << " / " << steinhart << "*C"; //print temperature in degrees celsius
 		steinhart = (steinhart * 1.8) + 32.0; // convert to farenheit
 		//Serial << " / " << steinhart << "*F"; // print temperature in degrees farenheit
-		temp = int(steinhart); // cast as an integer
+		temp = steinhart;
 		//Serial << " / " << temp << endl; // print the result we will return
-		fanSpeed = runFan(temp);
+		fanSpeed = runFan(int(temp));
 		if (temp >= thermalControlData.cutOff) {
-		//	lcd.setRGB(255, 0, 0); // alert: red screen
+			digitalWrite(welderPin, LOW);
+			lcd.setRGB(255, 0, 0); // alert: red screen
 			delay(5000);	// wait 5 seconds for fan to cool
-		//	lcd.setRGB(0, 0, 255);	// revert screen color to default 
+			lcd.setRGB(0, 0, 255);	// revert screen color to default 
 		}
 	} while (temp >= thermalControlData.cutOff);
 	return (temp); // return the temperature (farenheit)

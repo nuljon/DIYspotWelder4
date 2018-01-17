@@ -15,7 +15,7 @@ const uint8_t ledPin = 12;						// resistor/LED power on indicator
 const uint8_t ThermalControl::fanPin = 11;		// NPN transistor controlling FAN
 const uint8_t WeldPattern::zeroCrossPin = 3;    // R5 to AC signal
 const uint8_t weldSwitchPin = 4;				// barrel jack for weld switch (momentary)
-const uint8_t WeldPattern::welderPin = 2;		// Optocoupler controlling weld current
+const uint8_t ThermalControl::welderPin = 2;	// Optocoupler controlling weld current
 const uint8_t mode1Pin = 6;						// rotory switch
 const uint8_t mode2Pin = 7;						// rotory switch
 const uint8_t mode3Pin = 8;						// rotory switch
@@ -43,56 +43,30 @@ mode getMode(void);
 
 void setup() {
 	initializeHardware();
-	// power on indicator
-	digitalWrite(ledPin, HIGH);
+	digitalWrite(ledPin, HIGH);		// power on indicator
 }
 void loop() {
-	//read the mode from rotory switch
-	mode selectedMode = getMode();
-	// check for program switch
-	if (programButton.pressed()) {
-		switch (selectedMode)
-		{
-		case mode0:
-			thermalControl.program();
-			break;
-		case mode1:
-			weldPattern1.program();
-			break;
-		case mode2:
-			weldPattern2.program();
-			break;
-		case mode3:
-			weldPattern3.program();
-			break;
-		/*default:
-			lcd.write("error"); // should never see this
-			break;*/
-		}
-	}
-	else {
-		//display mode setting per switch and check for weldButton
-		switch (selectedMode)
-		{
-		case mode0:
-			thermalControl.display();
-			break;
-		case mode1:
-			weldPattern1.display(1);
-			if (weldButton.pressed()) weldPattern1.weld(weldButton);
-			break;
-		case mode2:
-			weldPattern2.display(2);
-			if (weldButton.pressed()) weldPattern2.weld(weldButton);
-			break;
-		case mode3:
-			weldPattern3.display(3);
-			if (weldButton.pressed()) weldPattern3.weld(weldButton);
-			break;
-		/*default:
-			lcd.write("error"); // should never see this
-			break;*/
-		}
+	mode selectedMode = getMode();	//read the mode from rotory switch	
+	switch (selectedMode){
+	case mode0:
+		if (programButton.pressed()) thermalControl.program();
+		else thermalControl.display();
+		break;
+	case mode1:
+		if (programButton.pressed()) weldPattern1.program();
+		else weldPattern1.display(1);
+		if (weldButton.pressed()) weldPattern1.weld(weldButton);
+		break;
+	case mode2:
+		if (programButton.pressed()) weldPattern2.program();
+		else weldPattern2.display(2);
+		if (weldButton.pressed()) weldPattern2.weld(weldButton);
+		break;
+	case mode3:
+		if (programButton.pressed()) weldPattern3.program();
+		else weldPattern3.display(3);
+		if (weldButton.pressed()) weldPattern3.weld(weldButton);		
+		break;
 	}
 }
 

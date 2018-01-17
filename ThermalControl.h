@@ -15,6 +15,7 @@ class ThermalControl
 {
 	 static const uint8_t thermPin;
 	 static const uint8_t fanPin;
+	 static const uint8_t welderPin;
 	 const int thermalConfigAddress = 0;
 	 rgb_lcd lcd;							// Grove RGB Backlight library call
 	 bool configured = false;
@@ -27,10 +28,7 @@ class ThermalControl
 
 	 bool loadThermalConfig(void);
 	 void saveThermalConfig(void);
-/*
-	 int activationThreshold = 150;	// degrees farenheight to begin active cooling
-	 int cutOff = 350; // lockout welder at this temperature
-	 */
+
 	 uint8_t fanSpeed = 0;
 	
 	 uint8_t runFan(int temperature);	// returns the fanspeed

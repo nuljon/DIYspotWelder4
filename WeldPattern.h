@@ -16,8 +16,9 @@ class WeldPattern
 	static const uint8_t weldSwitchPin;
 	static const uint8_t zeroCrossPin;
 	static const int sinusMax_us = 4167; // 1000ms / 60Hz / 4  = 4167us
-	static const uint8_t welderPin;
 	static int temperature;
+
+	const uint8_t& welderPin;
 	rgb_lcd& lcd;
 	bool& configured;
 
@@ -33,9 +34,9 @@ class WeldPattern
 	void saveWeldConfig(const int, weldPatternStruct&);
 	void useDefaultConfig(byte pattern);
 	
-	void weld(Button&, rgb_lcd&);
+	void weld(Button&, rgb_lcd&, const uint8_t&);
 	 void start();
-	 void pulseWeld(unsigned long pulseTime,Button&, rgb_lcd&);
+	 void pulseWeld(unsigned long pulseTime,Button&, rgb_lcd&, const uint8_t&);
 	 void pause(unsigned long pauseTime);
 	 void display(char num, rgb_lcd&, bool&);
 
