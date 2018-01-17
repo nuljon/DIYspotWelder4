@@ -1,0 +1,58 @@
+
+/* DIY Spotwelder v4.0
+
+by Jon Nuljon December 2017
+
+A resistance welder with these Functions:
+  - Dual Pulse Welds- user configurable timing for pre-weld pulse, pause, main weld pulse
+  - 4 selectable default modes: 
+			mode 0:  Thermal Controls
+			mode 1:  operates per user configured timing
+			mode 2:  operates per user configured timing
+			mode 3:  continuous main weld pulse until the weld switch is released
+  - Thermal protection via temperature controled cooling fan and weld current cutoff at user defined temperatures 
+  - LCD display
+  - user programmable settings ... coming soon
+  - Powered by AC current at approximately  500 amperes. 
+         This is achieved by rewinding the core of a microwave oven transformer and connecting it to 2 
+         SCR's to control the AC weld current, various switches for mode select and programmable interface,
+		 a thermistor to detect the temperarure, transistor to switch a DC fan motor for cooling, 
+         a Grove RGB backlight LCD display to give visual signals (resitance welders should not arc),
+		 a few resistors, LED, capacitors, diodes, and an Arduino micro controler
+		 to rule the the whole pile and run the code that follows.
+
+
+works with the circuit, SpotWelder v4.0,   
+nuljon.com/projects/welder ....
+circuit is an adaptation 
+from Albert van Dalen's board
+http://www.avdweb.nl/arduino/hardware-interfacing/spot-welder-controller.html
+
+It is preferred to start weld pulse at peak power. For inductive loads on AC,
+the amperage over time will follow the voltage by 90 degress. So calculate the 
+weld start time based on mains voltage zero crossing points.
+
+MAINS POWER where I live is delivered by 60Hz sinus cycle
+  each cycle duration is 16.667ms <----------> (1 sec divided by 60)
+  divide by 4 to calculate lag	  <->  sinusMax_us 4167us (from zero cross until peak amps)
+                                   ____        ____        ____        ____        ____
+VOLTS zeroCross-->                /____\ ____ /____\ ____ /____\ ____ /____\ ____ /____\ __
+                                        \____/      \____/      \____/      \____/      \__
+								      ____        ____        ____        ____        ____
+AMPS lag 90 degrees->				 /____\ ____ /____\ ____ /____\ ____ /____\ ____ /____\ __
+										   \____/      \____/      \____/      \____/      \__
+									   _________________________________
+begin weld at max power				  |									|
+					  ________________|     preWeld pulse				|__________________
+								      <----------50ms-------------------><----- pause before main pulse */
+									  rotory switch for the MODE selector.
+The pins are configured as active low
+
+OFF (no connection) _mode0 display Thermal Control values)
+				   |
+			   	  /		 _mode1 display Weld Pattern 1	(pin6)
+			     /
+			GND_/			 _mode2 display Weld Pattern 2	(pin 7)
+
+			_mode3 display Weld Pattern 3	(pin 8)								  
+*/
