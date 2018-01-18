@@ -7,8 +7,20 @@
 	#include "WProgram.h"
 #endif
 
+// Debugging switches and macros
+#define DEBUG 1 // Switch debug output on and off by 1 or 0
+
+#if DEBUG
+#define PRINTS(s)   { Serial.print(F(s)); }
+#define PRINT(s,v)  { Serial.print(F(s)); Serial.print(v); }
+#else
+#define PRINTS(s)
+#define PRINT(s,v)
+#endif
+
 #include "rgb_lcd.h"
 #include "EEPROMex.h"
+#include "Button.h"
 
 
 class ThermalControl
@@ -22,8 +34,8 @@ class ThermalControl
 
 	 struct thermalControlStruct {
 		 char version;
-		 int activationThreshold;
-		 int cutOff;
+		 int threshold;					// start cooling fan at this temperature
+		 int cutOff;					// disable weld current at this temperature
 	 } thermalControlData;
 
 	 bool loadThermalConfig(void);
@@ -32,11 +44,12 @@ class ThermalControl
 	 uint8_t fanSpeed = 0;
 	
 	 uint8_t runFan(int temperature);	// returns the fanspeed
+	 void display(const char[], int);
 
  public:
 	 void begin(void);
 	 void display(void);
-	 void program(void);
+	 void program(Button& ,Button& ,Button& );
 	 int getTemperature(void); // returns degrees farenheight and does thermal control
 };
 extern ThermalControl thermalControl;

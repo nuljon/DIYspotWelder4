@@ -1,3 +1,14 @@
+// Debugging switches and macros
+#define DEBUG 1 // Switch debug output on and off by 1 or 0
+
+#if DEBUG
+#define PRINTS(s)   { Serial.print(F(s)); }
+#define PRINT(s,v)  { Serial.print(F(s)); Serial.print(v); }
+#else
+#define PRINTS(s)
+#define PRINT(s,v)
+#endif
+
 #include <EEPROMVar.h>
 #include <EEPROMex.h>
 #include <Wire.h>		// I2C for RGB LCD 
@@ -27,8 +38,8 @@ Button weldButton(weldSwitchPin);		// button actuates the weld pattern
 Button mode1Button(mode1Pin);			// rotary switch position weldPattern1 timed pulses
 Button mode2Button(mode2Pin);			// rotary switch position weldPattern2 timed pulses
 Button mode3Button(mode3Pin);			// rotary switch position weldPattern3 continuous pulse
-Button previousButton(prevPin);			// menu button for programming interface
-Button nextButton(nextPin);				// menu button for programming interface
+Button decrementButton(prevPin);			// menu button for programming interface
+Button incrementButton(nextPin);				// menu button for programming interface
 Button programButton(programPin);		// toggle swithch program mode 
 
 WeldPattern weldPattern1(100);	// passes the EEprom memory location to store config
@@ -41,28 +52,45 @@ enum mode { mode0 = 0, mode1, mode2, mode3 };
 
 mode getMode(void);
 
+
 void setup() {
+#if DEBUG
+	Serial.begin(9600);				// open serial port if DEBUG enabled
+#endif
+	PRINTS("\nDIYspotwelder4.ino - DEBUGGER ON\n");
+	PRINTS("\ninitializing hardware");
 	initializeHardware();
+	PRINTS("\nturning on LED");
 	digitalWrite(ledPin, HIGH);		// power on indicator
+
 }
 void loop() {
-	mode selectedMode = getMode();	//read the mode from rotory switch	
+	PRINTS("\nread the mode from rotory switch ...........\n");
+	mode selectedMode = getMode();	
+	PRINT("\nselectedMode: ",selectedMode);
 	switch (selectedMode){
 	case mode0:
-		if (programButton.pressed()) thermalControl.program();
+		PRINTS("\n\nexecuting mode0");
+		if (programButton.pressed()) thermalControl.program(decrementButton,incrementButton,weldButton);
 		else thermalControl.display();
+#if DEBUG
+		delay(5000);		//useful for testing bare board withpout periferals
+#endif
 		break;
 	case mode1:
+		PRINTS("\n\nexecuting mode1");
 		if (programButton.pressed()) weldPattern1.program();
 		else weldPattern1.display(1);
 		if (weldButton.pressed()) weldPattern1.weld(weldButton);
 		break;
 	case mode2:
+		PRINTS("\n\nexecuting mode2");
 		if (programButton.pressed()) weldPattern2.program();
 		else weldPattern2.display(2);
 		if (weldButton.pressed()) weldPattern2.weld(weldButton);
 		break;
 	case mode3:
+		PRINTS("\n\nexecuting mode3");
 		if (programButton.pressed()) weldPattern3.program();
 		else weldPattern3.display(3);
 		if (weldButton.pressed()) weldPattern3.weld(weldButton);		
@@ -73,15 +101,25 @@ void loop() {
 void initializeHardware(void){
 	// Button.begin sets pinMode INPUT_PULLUP for active low switch connections
 	weldButton.begin();
+	PRINTS("\nweldButton initialized");
 	mode1Button.begin();
+	PRINTS("\nmode1Button initialized");
 	mode2Button.begin();
+	PRINTS("\nmode2Button initialized");
 	mode3Button.begin();
-	previousButton.begin();
-	nextButton.begin();
+	PRINTS("\nmode3Button initialized");
+	decrementButton.begin();
+	PRINTS("\ndecrementButton initialized");
+	incrementButton.begin();
+	PRINTS("\nincrementButton initialized");
 	programButton.begin();
+	PRINTS("\nprogramButton initialized");
 	thermalControl.begin();
+	PRINTS("\nthermalControl initialized");
 	weldPattern1.begin();
+	PRINTS("\n zero cross detection enabled");
 	pinMode(ledPin, OUTPUT);
+	PRINTS("\nLED initialized");
 
 }
 

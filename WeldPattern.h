@@ -7,6 +7,8 @@
 	#include "WProgram.h"
 #endif
 
+
+
 #include <Button.h>
 #include "ThermalControl.h"
 //
@@ -41,10 +43,6 @@ class WeldPattern
 	 void display(char num, rgb_lcd&, bool&);
 
  public:
-	/*
-	WeldPattern(unsigned long pre, unsigned long wait, unsigned long pulse):preWeldPulse(pre),
-		pausePulse(wait),weldPulse(pulse){}
-		*/
 	 WeldPattern(const int address) :weldConfigAddress(address) {}
 	 
 	 static void begin();
