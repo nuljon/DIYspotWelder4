@@ -19,12 +19,14 @@ class WeldPattern
 	static const uint8_t zeroCrossPin;
 	static const int sinusMax_us = 4167; // 1000ms / 60Hz / 4  = 4167us
 	static int temperature;
+	static bool configured;
 
 	const uint8_t& welderPin;
 	rgb_lcd& lcd;
-	bool& configured;
+	
 
 	struct weldPatternStruct {
+		char version;
 		unsigned long preWeldPulse;
 		unsigned long pausePulse;
 		unsigned long weldPulse;
@@ -32,7 +34,7 @@ class WeldPattern
 
 	const int weldConfigAddress;
 
-	void loadWeldConfig(byte pattern);
+	bool loadWeldConfig(byte pattern);
 	void saveWeldConfig(const int, weldPatternStruct&);
 	void useDefaultConfig(byte pattern);
 	
@@ -40,7 +42,8 @@ class WeldPattern
 	 void start();
 	 void pulseWeld(unsigned long pulseTime,Button&, rgb_lcd&, const uint8_t&);
 	 void pause(unsigned long pauseTime);
-	 void display(char num, rgb_lcd&, bool&);
+	 void display(char num, rgb_lcd& );
+	 void display(const char*, const int, int);
 
  public:
 	 WeldPattern(const int address) :weldConfigAddress(address) {}
@@ -51,7 +54,7 @@ class WeldPattern
 	 
 	 void display(char num);
 
-	 void program();
+	 void WeldPattern::program(uint8_t, Button&, Button&, Button&);
 
 
 };

@@ -71,27 +71,28 @@ void loop() {
 	switch (selectedMode){
 	case mode0:
 		PRINTS("\n\nexecuting mode0");
+		//thermalControl.program(decrementButton, incrementButton, weldButton);
 		if (programButton.pressed()) thermalControl.program(decrementButton,incrementButton,weldButton);
 		else thermalControl.display();
 #if DEBUG
-		delay(5000);		//useful for testing bare board withpout periferals
+		//delay(5000);		//useful for testing bare board without periferals
 #endif
 		break;
 	case mode1:
 		PRINTS("\n\nexecuting mode1");
-		if (programButton.pressed()) weldPattern1.program();
+		if (programButton.pressed()) weldPattern1.program(1, decrementButton, incrementButton, weldButton);
 		else weldPattern1.display(1);
 		if (weldButton.pressed()) weldPattern1.weld(weldButton);
 		break;
 	case mode2:
 		PRINTS("\n\nexecuting mode2");
-		if (programButton.pressed()) weldPattern2.program();
+		if (programButton.pressed()) weldPattern2.program(2, decrementButton, incrementButton, weldButton);
 		else weldPattern2.display(2);
 		if (weldButton.pressed()) weldPattern2.weld(weldButton);
 		break;
 	case mode3:
 		PRINTS("\n\nexecuting mode3");
-		if (programButton.pressed()) weldPattern3.program();
+		if (programButton.pressed()) weldPattern3.program(3, decrementButton, incrementButton, weldButton);
 		else weldPattern3.display(3);
 		if (weldButton.pressed()) weldPattern3.weld(weldButton);		
 		break;

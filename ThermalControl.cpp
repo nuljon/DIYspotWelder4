@@ -6,6 +6,7 @@ long coolingSpeedMap(long input, long inmin, long inmax, long outmin, long outma
 	if (input >= inmax) return outmax;  // if input too high then returm maximum range
 	return (input - inmin) * (outmax - outmin) / (inmax - inmin) + outmin; // return calculated output
 }
+bool ThermalControl::configured = false;
 
 void ThermalControl::begin(void)
 {
@@ -28,43 +29,55 @@ bool ThermalControl::loadThermalConfig(void) {
 	return (thermalControlData.version == 4);
 }
 void ThermalControl::saveThermalConfig(void) {
-	EEPROM.writeBlock(thermalConfigAddress, thermalControlData);
+	EEPROM.updateBlock(thermalConfigAddress, thermalControlData);
 	PRINTS("\n\nsaving thermalConfig\n");
 }
 
 void ThermalControl::program(Button& decrementButton, Button& incrementButton, Button& weldButton)
 {
-	static uint8_t counter = 1;			// tracks which setting we are programming
-	if (counter == 1) {
-		display("Start fan: ", thermalControlData.threshold); // first setting to program
+	static uint8_t field = 1;			// tracks which setting we are programming
+	if (field == 1) {
+		const char str[] = "start fan at";
+		const char* sp = str;
+		const int x = sizeof(str);
+		display(sp, x, thermalControlData.threshold); // first setting to program
 		if (decrementButton.pressed() && thermalControlData.threshold > 75)
 			--thermalControlData.threshold;
 		if (incrementButton.pressed() && thermalControlData.threshold < 200)
 			++thermalControlData.threshold;
-		if (weldButton.pressed()) ++counter;		// bump counter to next setting
+		if (weldButton.pressed()) {
+			++field;				// bump field to next setting
+			saveThermalConfig();	// save setting
+		}
 		delay(500);				// allow some time for user to read value
 	}
-	if (counter == 2) {
-		display("Cutoff weld: ", thermalControlData.cutOff); // second setting to program
+	if (field == 2) {
+		const char str[] = "therm cutoff  ";
+		const char* sp = str;
+		const int x = sizeof(str);
+		display(sp, x, thermalControlData.cutOff); // second setting to program
 		if (decrementButton.pressed() && thermalControlData.cutOff > 100)
 			--thermalControlData.cutOff;
 		if (incrementButton.pressed() && thermalControlData.cutOff < 350)
 			++thermalControlData.cutOff;
-		if (weldButton.pressed()) counter = 1;		//reset the counter to first setting
+		if (weldButton.pressed()) {
+			field = 1;		//reset the field to first setting
+			saveThermalConfig();	// save setting
+		}
 		delay(500);				// allow some time for user to read value
 	}
 }
 
-void ThermalControl::display(const char name[], int value) {
+void ThermalControl::display(const char* str, const int x, int value) {
 	lcd.setRGB(0, 255, 0);				// light the display - program mode is green
 	lcd.clear();						// clear the screen
 	lcd.setCursor(0, 0);				// from top left
-	lcd.println(F("CHANGE SETTING"));		// print title line
+	lcd.println(F(" CHANGE SETTING "));		// print title line
 	PRINTS("\n\nCHANGE SETTING\n");
 	lcd.setCursor(0, 1);				// on the next line
-	for (uint8_t i = 0; i < sizeof(name); ++i) {
-		lcd.print(name[i]);			// col 10
-		PRINT("", name[i]);
+	for (uint8_t i = 0; i < x; ++i) {
+		lcd.print(str[i]);			// col 10
+		PRINT("", str[i]);
 	}
 	lcd.print(value);
 	PRINT("", value);
@@ -116,14 +129,14 @@ uint8_t ThermalControl::runFan(int temp) {
 	}
 	else {
 		uint8_t(fanSpeed) = coolingSpeedMap(long(temp), long(thermalControlData.threshold), 
-			long(thermalControlData.cutOff) - 50L, 50L, 255L); // fanSpeed increases with temperature
+			long(thermalControlData.cutOff) - 10L, 50L, 255L); // fanSpeed increases with temperature
 		analogWrite(fanPin, fanSpeed);			// write fanSpeed as PWM signal to NPN that drives fan
 	}
 	return (fanSpeed);
 }
 void ThermalControl::display() {
-	int temperature = getTemperature();
 	lcd.setRGB(0, 0, 255);				// light the display - default is blue 0,0,255
+	int temperature = getTemperature();
 	lcd.clear();						// clear the screen
 	lcd.setCursor(0, 0);				// from top left
 	lcd.println(F("Thermal Control"));		// print title line

@@ -30,7 +30,7 @@ class ThermalControl
 	 static const uint8_t welderPin;
 	 const int thermalConfigAddress = 0;
 	 rgb_lcd lcd;							// Grove RGB Backlight library call
-	 bool configured = false;
+	 static bool configured;
 
 	 struct thermalControlStruct {
 		 char version;
@@ -44,7 +44,7 @@ class ThermalControl
 	 uint8_t fanSpeed = 0;
 	
 	 uint8_t runFan(int temperature);	// returns the fanspeed
-	 void display(const char[], int);
+	 void display(const char*, const int, int);
 
  public:
 	 void begin(void);
