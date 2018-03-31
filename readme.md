@@ -29,7 +29,7 @@ Software works with the circuit:
 which is a derivitive of Albert van Dalen's 
 http://www.avdweb.nl/arduino/hardware-interfacing/spot-welder-controller.html
 
-![schematic]
+![a png file of the spot welder circuit](https://github.com/nuljon/DIYspotWelder4/blob/master/SpotWelderCircuitSchematic.png "Spot Welder Schematic")
 
 As to calculating weld pulse start time, it is preferred to start weld pulses at peak power. For inductive loads,
 the amperage will follow the voltage phase by 90 degrees. So weld start time is calculated based on mains voltage zero crossing point (from negative crossing to positive voltage).
@@ -42,5 +42,3 @@ the transformer core temperature and fanspeed. If program toggle is switched, th
 to configure the thermal control activation threshold and weld current cutoff temperature. Activation threshold is the temperature whereby the fan motor starts to spin. As the sensed temperature increases, the speed is ramped up using a PWM signal from the Arduino.
 
 For each of the 3 weldPattern instances, modes 1, 2, and 3, the toggle switch will also trigger a method call that allows the user to set weld pulse timing. Custom values can be configured for the preWeldPulse, pause between pulses, and the weldPulse. All changes are visible from the front panel display. Setting weldPulse to 0 is interpreted as continuous weld, and the weld current will stop either upon releasing the weld button, pedal, or whatever trigger device. The weld current will also stop if sensor indicates temperature of the core has reached or exceeded the cutoff setting.
-
-[schemaic]:https://github.com/nuljon/DIYspotWelder4/blob/master/SpotWelderCircuitSchematic.png
