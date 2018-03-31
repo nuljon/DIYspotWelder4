@@ -1,8 +1,8 @@
-##DIY Spotwelder v4.0
+## DIY Spotwelder v4.0 ##
   by Jon Nuljon January 2018
 
 
-###A resistance welder with these features:
+### A resistance welder with these features ###
 -Dual Pulse Welds- user configurable timing for pre-weld pulse, pause, main weld pulse
 
 -4 selectable modes display values and allow user to make changes via front panel interface
@@ -21,7 +21,7 @@
    -Powered by MAINS  
 
 
-###Hardware Details:
+### Hardware Details ###
    The build involves rewinding the secondary core(s) of a microwave oven transformer with a single turn of the heaviest wire that will fit, which yields 2 to 4v at up to 1200 amperes. A smaller transformer is used having an output of 12v (rectified) for the fan. Further regulation reduces that to 5v DC for the control circuitry:
 		* various switches for mode select and programmable interface
 		* a thermistor to detect the temperature
