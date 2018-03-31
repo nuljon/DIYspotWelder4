@@ -1,15 +1,7 @@
 #ifndef _THERMALCONTROL_h
 #define _THERMALCONTROL_h
 
-#if defined(ARDUINO) && ARDUINO >= 100
-	#include "Arduino.h"
-#else
-	#include "WProgram.h"
-#endif
-
-// Debugging switches and macros
-#define DEBUG 1 // Switch debug output on and off by 1 or 0
-
+#define DEBUG 1
 #if DEBUG
 #define PRINTS(s)   { Serial.print(F(s)); }
 #define PRINT(s,v)  { Serial.print(F(s)); Serial.print(v); }
@@ -17,19 +9,22 @@
 #define PRINTS(s)
 #define PRINT(s,v)
 #endif
-
+#include <Arduino.h>
+#include "Button.h"
 #include "rgb_lcd.h"
 #include "EEPROMex.h"
-#include "Button.h"
+
 
 
 class ThermalControl
 {
+	friend class WeldPattern;
 	 static const uint8_t thermPin;
 	 static const uint8_t fanPin;
-	 static const uint8_t welderPin;
+	 static const uint8_t controlPin;
 	 const int thermalConfigAddress = 0;
-	 rgb_lcd lcd;							// Grove RGB Backlight library call
+	 rgb_lcd lcd; // Grove RGB Backlight library call
+	 // rgb_lcd* LCD = lcd;
 	 static bool configured;
 
 	 struct thermalControlStruct {
@@ -49,7 +44,7 @@ class ThermalControl
  public:
 	 void begin(void);
 	 void display(void);
-	 void program(Button& ,Button& ,Button& );
+	 void set(Button& ,Button& ,Button& );
 	 int getTemperature(void); // returns degrees farenheight and does thermal control
 };
 extern ThermalControl thermalControl;

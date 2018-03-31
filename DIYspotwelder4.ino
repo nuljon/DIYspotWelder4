@@ -9,42 +9,42 @@
 #define PRINT(s,v)
 #endif
 
-#include <EEPROMVar.h>
-#include <EEPROMex.h>
-#include <Wire.h>		// I2C for RGB LCD 
+#include "ThermalControl.h" // class handles thermal protection
+#include "WeldPattern.h"	// class handles welder functions - 
+#include <EEPROMex.h>    // extended eeprom library
+#include <EEPROMVar.h>  // 
+#include <Wire.h>		  // I2C linrary for RGB LCD comms
 #include <rgb_lcd.h>	// library for the Grove RGB Backlight LCD Display - 16 columns 2 rows
-#include <Button.h>		// library for buttons
-#include "ThermalControl.h"	// class controls thermal protection
-#include "WeldPattern.h"	// class controls weld patterns
+#include <Button.h>		// library for buttons and switches reads state, state changes, and debounce
+
 
 ////////////////////////  HARDWARE SETUP
 //									make pin assignments here  ///////////////////////////
 
-const uint8_t ThermalControl::thermPin = A0;	// 1k thermistor/resistor voltage divider
-const uint8_t programPin = 16;					// program mode toggle switch
-const uint8_t ledPin = 12;						// resistor/LED power on indicator
+const uint8_t ThermalControl::thermPin = A0;	// 1k thermistor/10k resistor voltage divider
+const uint8_t programPin = 16;					      // program mode toggle switch
+const uint8_t ledPin = 12;						        // resistor/LED power on indicator
 const uint8_t ThermalControl::fanPin = 11;		// NPN transistor controlling FAN
-const uint8_t WeldPattern::zeroCrossPin = 3;    // R5 to AC signal
-const uint8_t weldSwitchPin = 4;				// barrel jack for weld switch (momentary)
-const uint8_t ThermalControl::welderPin = 2;	// Optocoupler controlling weld current
-const uint8_t mode1Pin = 6;						// rotory switch
-const uint8_t mode2Pin = 7;						// rotory switch
-const uint8_t mode3Pin = 8;						// rotory switch
-const uint8_t prevPin = 9;						// menu momentary switch
-const uint8_t nextPin = 10;						// menu momentary switch
+const uint8_t WeldPattern::zeroCrossPin = 3;  // R5 to AC signal
+const uint8_t weldSwitchPin = 4;				      // barrel jack for weld switch (momentary)
+const uint8_t ThermalControl::controlPin = 2;	// Optocoupler controlling weld current
+const uint8_t mode1Pin = 6;						        // rotory switch POSITION 2 NO
+const uint8_t mode2Pin = 7;						        // rotory switch POSITION 3 NO
+const uint8_t mode3Pin = 8;						        // rotory switch POSITION 4 NO
+const uint8_t prevPin = 9;						        // menu momentary switch NO
+const uint8_t nextPin = 10;						        // menu momentary switch NO
 
 // instantiate the objects
-Button weldButton(weldSwitchPin);		// button actuates the weld pattern
-Button mode1Button(mode1Pin);			// rotary switch position weldPattern1 timed pulses
-Button mode2Button(mode2Pin);			// rotary switch position weldPattern2 timed pulses
-Button mode3Button(mode3Pin);			// rotary switch position weldPattern3 continuous pulse
-Button decrementButton(prevPin);			// menu button for programming interface
-Button incrementButton(nextPin);				// menu button for programming interface
-Button programButton(programPin);		// toggle swithch program mode 
-
-WeldPattern weldPattern1(100);	// passes the EEprom memory location to store config
-WeldPattern weldPattern2(200);
-WeldPattern weldPattern3(300);
+Button weldButton(weldSwitchPin);// button actuates the weld pattern
+Button mode1Button(mode1Pin);		// rotary switch positions (0 position is no connection)
+Button mode2Button(mode2Pin);		// 
+Button mode3Button(mode3Pin);		// 
+Button decrementButton(prevPin);// buttons for programming interface
+Button incrementButton(nextPin);// inc and dec are momentary type
+Button programButton(programPin);// toggle switch selects program mode (set)
+WeldPattern weldPattern1(100);	// instantiate objects from WeldPattern Class
+WeldPattern weldPattern2(200);  // each instance represents a weld pulse pattern
+WeldPattern weldPattern3(300);  // parameter is mem location to store pattern
 
 void initializeHardware(void);
 
@@ -62,8 +62,8 @@ void setup() {
 	initializeHardware();
 	PRINTS("\nturning on LED");
 	digitalWrite(ledPin, HIGH);		// power on indicator
-
 }
+
 void loop() {
 	PRINTS("\nread the mode from rotory switch ...........\n");
 	mode selectedMode = getMode();	
@@ -72,29 +72,35 @@ void loop() {
 	case mode0:
 		PRINTS("\n\nexecuting mode0");
 		//thermalControl.program(decrementButton, incrementButton, weldButton);
-		if (programButton.pressed()) thermalControl.program(decrementButton,incrementButton,weldButton);
-		else thermalControl.display();
-#if DEBUG
-		//delay(5000);		//useful for testing bare board without periferals
-#endif
+		while (!programButton.read()) thermalControl.set(decrementButton,incrementButton,weldButton);
+		thermalControl.display();
 		break;
 	case mode1:
 		PRINTS("\n\nexecuting mode1");
-		if (programButton.pressed()) weldPattern1.program(1, decrementButton, incrementButton, weldButton);
-		else weldPattern1.display(1);
-		if (weldButton.pressed()) weldPattern1.weld(weldButton);
+		while (!programButton.read()) weldPattern1.set(1, decrementButton, incrementButton, weldButton);
+		weldPattern1.display(1);
+		if (!weldButton.read()) {
+			PRINTS("\n WELD BUTTON IS PRESSED!");
+			weldPattern1.weld(weldButton);
+		}
 		break;
 	case mode2:
 		PRINTS("\n\nexecuting mode2");
-		if (programButton.pressed()) weldPattern2.program(2, decrementButton, incrementButton, weldButton);
-		else weldPattern2.display(2);
-		if (weldButton.pressed()) weldPattern2.weld(weldButton);
+		while (!programButton.read()) weldPattern2.set(2, decrementButton, incrementButton, weldButton);
+		weldPattern2.display(2);
+		if (!weldButton.read()) {
+			PRINTS("\n WELD BUTTON IS PRESSED!");
+			weldPattern2.weld(weldButton);
+		}
 		break;
 	case mode3:
 		PRINTS("\n\nexecuting mode3");
-		if (programButton.pressed()) weldPattern3.program(3, decrementButton, incrementButton, weldButton);
-		else weldPattern3.display(3);
-		if (weldButton.pressed()) weldPattern3.weld(weldButton);		
+		while (!programButton.read()) weldPattern3.set(3, decrementButton, incrementButton, weldButton);
+		weldPattern3.display(3);
+		if (!weldButton.read()) {
+			PRINTS("\n WELD BUTTON IS PRESSED!");
+			weldPattern3.weld(weldButton);
+		}
 		break;
 	}
 }
@@ -121,13 +127,31 @@ void initializeHardware(void){
 	PRINTS("\n zero cross detection enabled");
 	pinMode(ledPin, OUTPUT);
 	PRINTS("\nLED initialized");
-
 }
 
 mode getMode(void)
 {
-	if (mode1Button.pressed()) return (mode1);
-	else if (mode2Button.pressed()) return (mode2);
-	else if (mode3Button.pressed()) return (mode3);
+	
+	int modePin1 = digitalRead(mode1Pin);
+	PRINT("\nmode switch position 1 reads: ", modePin1);
+	int modePin2 = digitalRead(mode2Pin);
+	PRINT("\nmode switch position 2 reads: ", modePin2);
+	int modePin3 = digitalRead(mode3Pin);
+	PRINT("\nmode switch position 3 reads: ", modePin3);
+	
+	
+	if (mode1Button.read() == mode1Button.PRESSED) {
+		PRINTS("\npressed mode1");
+		return (mode1);
+	}
+	else if (mode2Button.read() == mode2Button.PRESSED) {
+		PRINTS("\npressed mode2");
+		return (mode2);
+	}
+	else if (mode3Button.read() == mode3Button.PRESSED) {
+		PRINTS("\npressedmode3");
+		return (mode3);
+	}
 	else return (mode0);
 }
+

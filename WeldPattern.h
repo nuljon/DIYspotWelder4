@@ -1,29 +1,20 @@
 #ifndef _WELDPATTERN_h
 #define _WELDPATTERN_h
-
-#if defined(ARDUINO) && ARDUINO >= 100
-	#include "Arduino.h"
-#else
-	#include "WProgram.h"
-#endif
-
-
-
-#include <Button.h>
+#
 #include "ThermalControl.h"
+#include <Button.h>
 //
 class WeldPattern
-{
-	friend class ThermalControl;
+{	private:
+	// class variables
 	static const uint8_t weldSwitchPin;
 	static const uint8_t zeroCrossPin;
-	static const int sinusMax_us = 4167; // 1000ms / 60Hz / 4  = 4167us
+	static const long sinusMax_us = 4167L; // 1000ms / 60Hz / 4  = 4167us
 	static int temperature;
 	static bool configured;
 
-	const uint8_t& welderPin;
-	rgb_lcd& lcd;
-	
+	// member variables
+	const uint8_t& controlPin;	//reference to pin controlling weld current
 
 	struct weldPatternStruct {
 		char version;
@@ -36,25 +27,19 @@ class WeldPattern
 
 	bool loadWeldConfig(byte pattern);
 	void saveWeldConfig(const int, weldPatternStruct&);
-	void useDefaultConfig(byte pattern);
-	
-	void weld(Button&, rgb_lcd&, const uint8_t&);
-	 void start();
-	 void pulseWeld(unsigned long pulseTime,Button&, rgb_lcd&, const uint8_t&);
-	 void pause(unsigned long pauseTime);
-	 void display(char num, rgb_lcd& );
-	 void display(const char*, const int, int);
+	void useDefaultConfig(uint8_t pattern);
+	void start();
+	void weld(Button& weldButton, const uint8_t& num);
+	void pulseWeld(unsigned long pulseTime, Button& weldButton, const uint8_t& controlPin);
+	void pause(unsigned long pauseTime);
+	void display(const char*, const int, int);
 
  public:
 	 WeldPattern(const int address) :weldConfigAddress(address) {}
-	 
 	 static void begin();
-
-	 void weld(Button&);
-	 
-	 void display(char num);
-
-	 void WeldPattern::program(uint8_t, Button&, Button&, Button&);
+	 void weld(Button& weldButton);
+	 void display(uint8_t num);
+	 void WeldPattern::set(uint8_t, Button&, Button&, Button&);
 
 
 };
