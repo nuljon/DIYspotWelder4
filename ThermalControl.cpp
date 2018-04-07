@@ -89,10 +89,12 @@ void ThermalControl::display(const char* str, const int x, int value) {
 int ThermalControl::getTemperature(void)
 {
 	/*
-	the temperature sensor is a voltage divider using a 1k thermistor (R1) and 10k resistor (R2)
-	calculate the thermistor's resistance using the equation: R1=R2*(Vin / Vout - 1)
+	the temperature sensor is a voltage divider using a 1k thermistor (R2) and 1k resistor (R1)
+	calculate the thermistor's resistance using the Voltage Divider Equation: 
+	V(out) = V(in) * R2 / (R1 + R2) 
+	or R2 = R1 * Vout / (Vin - Vout)
 	Vin is the max possible analog reading (1023) and Vout is read at thermPin (temp)
-	to solve for temperature use Steinhart B Parameter equation:
+	then solve for temperature using Steinhart B Parameter equation:
 	1 / T = 1 / To + 1 / B * ln(R / Ro) where To is room temperature in Kelvin
 	and B = 3986 for the 1k thermistor)
 	*/
@@ -100,11 +102,11 @@ int ThermalControl::getTemperature(void)
 	do {
 		temp = (float)analogRead(thermPin);			// read the voltage signal
 		PRINT("\nsignal on thermPin: ", temp);	// debug PRINT signal to serial
-		temp = 10000.0 * (1023.0 / temp - 1.0);		// R2 * (Vin / Vout - 1)
+		temp = 1000.0 * temp / (1023.0 - temp);		// R1 * Vout / (Vin - Vout)
 		PRINT("\n resistance: ", temp);			// debug PRINT calcd resistance
 		PRINTS(" Ohms");						// debug PRINT units to serial
 		float steinhart;						// we need another variable
-		steinhart = temp / 1000.0;				// (R / Ro)
+		steinhart = temp / 2000.0;				// (R / Ro)
 		steinhart = log(steinhart);				// ln(R / Ro)
 		steinhart /= 3986.0;					// 1/B * ln(R / Ro)
 		steinhart += 1.0 / (25.0 + 273.15);		// + (1 / To)
@@ -137,7 +139,7 @@ uint8_t ThermalControl::runFan(int temp) {		// function to control fan
 			long(thermalControlData.cutOff) - 10L, 50L, 255L); // proportional to temperature
 		analogWrite(fanPin, fanSpeed);			// send PWM signal to transistor that drives fan
 	}
-	return (fanSpeed);							// send the temperature back to caller
+	return (fanSpeed);							// send the fanspeed back to caller
 }
 void ThermalControl::display() {				// function displays status on lcd (temp and fan speed)
 	lcd.setRGB(0, 0, 255);						// light the display - default is blue 0,0,255

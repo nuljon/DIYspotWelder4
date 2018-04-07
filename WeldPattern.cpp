@@ -15,10 +15,10 @@ void WeldPattern::pulseWeld(unsigned long pulse, Button& weldButton, const uint8
 	while (!stop) {
 		digitalWrite(controlPin, HIGH);				// turn on the weld current
 		PRINTS("\n zzzzzzzzzt");					//debug PRINT
-		if (pulse == 0l) {
+		if (pulse == 0l) {							// pulse is set to continuous
 			stop = weldButton.read();				// stop if button not pressed
 			PRINT("\nweld button status: ", weldButton.read());//debug PRINT button
-		}
+		}											// otherwise
 		else stop = (millis() >= start + pulse);	// stop on reaching pulse length
 		int temperature = thermalControl.getTemperature(); // thermal control can suspend weld loop
 	}
@@ -38,14 +38,14 @@ void WeldPattern::weld(Button& weldButton)
 	weld(weldButton, controlPin);
 }
 void WeldPattern::weld(Button& weldButton, const uint8_t& controlPin) {
-	PRINTS("\n Not DETECTING ZEROCROSSING .........."); // disabled start() for debug
+	
 	PRINT("\n executing weld pattern: ", int(weldData.preWeldPulse));//debug PRINT legth of prew-weld pulse
 	PRINT("/", int(weldData.pausePulse));			//debug PRINT length of pause
 	PRINT("/", int(weldData.weldPulse));			//debug PRINT length of weld pulse
-	//start();										// detect zerocrossing and time the pulse start
+	start();										// detect zerocrossing and time the pulse start
 	pulseWeld(this -> weldData.preWeldPulse, weldButton, controlPin);
 	pause(this -> weldData.pausePulse);
-	//start();										// detect zerocrossing and time the pulse start
+	start();										// detect zerocrossing and time the pulse start
 	pulseWeld(this -> weldData.weldPulse, weldButton, controlPin);
 }
 // TODO handle screen writes displaying greater than 16 columns
