@@ -1,7 +1,7 @@
 #ifndef _THERMALCONTROL_h
 #define _THERMALCONTROL_h
 
-#define DEBUG 1
+#define DEBUG 0
 #if DEBUG
 #define PRINTS(s)   { Serial.print(F(s)); }
 #define PRINT(s,v)  { Serial.print(F(s)); Serial.print(v); }
@@ -36,7 +36,7 @@ class ThermalControl
 	 bool loadThermalConfig(void);
 	 void saveThermalConfig(void);
 
-	 uint8_t fanSpeed = 0;
+	 long fanSpeed = 0;
 	
 	 uint8_t runFan(int temperature);	// returns the fanspeed
 	 void display(const char*, const int, int);

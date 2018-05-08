@@ -118,7 +118,8 @@ int ThermalControl::getTemperature(void)
 		PRINT(" / ", steinhart);				// debug PRINT temperature
 		PRINTS("*F");							// in degrees farenheit
 		temp = steinhart;						// update temp
-		PRINT(" / ",temp);						// debug PRINT result to return
+		PRINT(" / ",temp);						// debug PRINT result to return	
+		//temp = 230;							// override temp to test fan and thermal cutoff function
 		fanSpeed = runFan(int(temp));			// set the fan speed
 		if (temp >= thermalControlData.cutOff) {// if overheating
 			digitalWrite(controlPin, LOW);		// turn off the weld current
@@ -127,22 +128,24 @@ int ThermalControl::getTemperature(void)
 			lcd.setRGB(0, 0, 255);				// revert screen color  
 		}
 	} while (temp >= thermalControlData.cutOff);// loop while overheated
-	return (temp);								// return temperatur(farenheit)
+	PRINT("\n control pin:", digitalRead(controlPin)); //debug print to serial weld control status
+	return (temp);								// return temperature(farenheit)
 }
 uint8_t ThermalControl::runFan(int temp) {		// function to control fan
 	if (temp < thermalControlData.threshold) {	// if temperature is below minimum threshold
 		fanSpeed = 0;							// set fan speed to 0
-		analogWrite(fanPin, fanSpeed);			// turn off the fan
+		analogWrite(fanPin, uint8_t(fanSpeed));	// turn off the fan
 	}
 	else {										// set the fanspeed
-		uint8_t(fanSpeed) = coolingSpeedMap(long(temp), long(thermalControlData.threshold), 
+		fanSpeed = coolingSpeedMap(long(temp), long(thermalControlData.threshold), 
 			long(thermalControlData.cutOff) - 10L, 50L, 255L); // proportional to temperature
-		analogWrite(fanPin, fanSpeed);			// send PWM signal to transistor that drives fan
+		analogWrite(fanPin, uint8_t(fanSpeed));			// send PWM signal to transistor that drives fan
+		PRINT("fan speed: ", fanSpeed);
 	}
-	return (fanSpeed);							// send the fanspeed back to caller
+	return (fanSpeed);							// 
 }
 void ThermalControl::display() {				// function displays status on lcd (temp and fan speed)
-	lcd.setRGB(0, 0, 255);						// light the display - default is blue 0,0,255
+	lcd.setRGB(0, 255, 0);						// light the display - default is blue 0,0,255
 	int temperature = getTemperature();			// get the temperature
 	lcd.clear();								// clear the screen
 	lcd.setCursor(0, 0);						// from top left
@@ -152,10 +155,11 @@ void ThermalControl::display() {				// function displays status on lcd (temp and
 	lcd.print(temperature);						// col 2 or 3	
 	PRINT("\n", temperature);					// debug PRINT temperature to serial
 	lcd.print(F("*F fan: "));					// col 9 or 10
-	byte speed = map(fanSpeed, 0, 255, 0, 100); //convert to percent
+	int speed = map(uint8_t(fanSpeed), 0, 255, 0, 100); //convert to percent
 	lcd.print(speed);							// col 13 max
 	lcd.print("%");								// col 14
-	PRINT(" *F fan: ", speed);					// debug PRINT fan speed to serial
+	PRINT("*F fan: ", speed);					// debug PRINT fan speed to serial
+	PRINT("% and fan speed: ", fanSpeed);
 }
 
 ThermalControl thermalControl;					// instantiate the class as a global object

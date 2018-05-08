@@ -6,16 +6,15 @@
 //
 class WeldPattern
 {	private:
-	// class variables
-	static const uint8_t weldSwitchPin;
-	static const uint8_t zeroCrossPin;
-	static const long sinusMax_us = 4167L; // 1000ms / 60Hz / 4  = 4167us
-	static int temperature;
-	static bool configured;
+	// class variables (values shared by all weld patterns)
+	static const uint8_t welderControlPin; // pin controlling weld current
+	static const uint8_t weldSwitchPin;	   // pin to read weld activation signal
+	static const uint8_t zeroCrossPin;	   // to AC signal in phase with MAINS power
+	static const long sinusMax_us = 4167L; // (1000ms/60Hz/4=4167us) time(us) from voltage zerocross until max current
+	static int temperature; // even if many patterns, there is only one transformer core and this is its temperature
+	static bool configured; // if one pattern is configured we assume the rest are too
 
 	// member variables
-	const uint8_t& controlPin;	//reference to pin controlling weld current
-
 	struct weldPatternStruct {
 		char version;
 		unsigned long preWeldPulse;
@@ -29,8 +28,8 @@ class WeldPattern
 	void saveWeldConfig(const int, weldPatternStruct&);
 	void useDefaultConfig(uint8_t pattern);
 	void start();
-	void weld(Button& weldButton, const uint8_t& num);
-	void pulseWeld(unsigned long pulseTime, Button& weldButton, const uint8_t& controlPin);
+	void weld(Button& weldButton, const uint8_t& welderControlPin);
+	void pulseWeld(unsigned long pulseTime, Button& weldButton, const uint8_t& welderControlPin);
 	void pause(unsigned long pauseTime);
 	void display(const char*, const int, int);
 

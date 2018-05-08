@@ -1,5 +1,5 @@
 // Debugging switches and macros
-#define DEBUG 1 // Switch debug output on and off by 1 or 0
+#define DEBUG 0 // Switch debug output on and off by 1 or 0
 
 #if DEBUG
 #define PRINTS(s)   { Serial.print(F(s)); }
@@ -18,33 +18,35 @@
 #include <Button.h>		// library for buttons and switches reads state, state changes, and debounce
 
 
-////////////////////////  HARDWARE SETUP
-//									make pin assignments here  ///////////////////////////
+/////////////////////////////////     HARDWARE SETUP	//////////////////////////////////
+//////////////////////////////  edit pin assignments here ////////////////////////////////
 
-const uint8_t ThermalControl::thermPin = A0;	// 1k thermistor/10k resistor voltage divider
-const uint8_t programPin = 16;					      // program mode toggle switch
-const uint8_t ledPin = 12;						        // resistor/LED power on indicator
-const uint8_t ThermalControl::fanPin = 11;		// NPN transistor controlling FAN
-const uint8_t WeldPattern::zeroCrossPin = 3;  // R5 to AC signal
-const uint8_t weldSwitchPin = 4;				      // barrel jack for weld switch (momentary)
-const uint8_t ThermalControl::controlPin = 2;	// Optocoupler controlling weld current
-const uint8_t mode1Pin = 6;						        // rotory switch POSITION 2 NO
-const uint8_t mode2Pin = 7;						        // rotory switch POSITION 3 NO
-const uint8_t mode3Pin = 8;						        // rotory switch POSITION 4 NO
-const uint8_t prevPin = 9;						        // menu momentary switch NO
-const uint8_t nextPin = 10;						        // menu momentary switch NO
+const uint8_t ThermalControl::thermPin = A0;    // to voltage divider (between 1k thermistor and R12)
+const uint8_t programPin = 16;			        // program mode toggle switch
+const uint8_t ledPin = 12;					    // to R3 for LED power on indicator
+const uint8_t ThermalControl::fanPin = 11;	    // NPN transistor controlling FAN
+const uint8_t WeldPattern::zeroCrossPin = 3;    // to R5 senses AC signal
+const uint8_t weldSwitchPin = 4;			    // to barrel jack for weld switch (momentary)
+const uint8_t WeldPattern::welderControlPin = 2;// to Optocoupler controlling weld current
+const uint8_t ThermalControl::controlPin = 2;	// ThermalControl needs access so it can shut off weld current
+const uint8_t mode1Pin = 6;						// rotory switch POSITION 2 NO
+const uint8_t mode2Pin = 7;						// rotory switch POSITION 3 NO
+const uint8_t mode3Pin = 8;				        // rotory switch POSITION 4 NO
+const uint8_t prevPin = 9;				        // menu momentary switch NO
+const uint8_t nextPin = 10;				        // menu momentary switch NO
 
 // instantiate the objects
-Button weldButton(weldSwitchPin);// button actuates the weld pattern
-Button mode1Button(mode1Pin);		// rotary switch positions (0 position is no connection)
+Button weldButton(weldSwitchPin);	// button or switch to actuate the weld pattern - zzzzzzzt.
+Button mode1Button(mode1Pin);		// rotary switch pins 1 thru 3 on 4 position type, position 0 is no connection
 Button mode2Button(mode2Pin);		// 
 Button mode3Button(mode3Pin);		// 
-Button decrementButton(prevPin);// buttons for programming interface
-Button incrementButton(nextPin);// inc and dec are momentary type
-Button programButton(programPin);// toggle switch selects program mode (set)
-WeldPattern weldPattern1(100);	// instantiate objects from WeldPattern Class
-WeldPattern weldPattern2(200);  // each instance represents a weld pulse pattern
-WeldPattern weldPattern3(300);  // parameter is mem location to store pattern
+Button decrementButton(prevPin);	// buttons for programming interface
+Button incrementButton(nextPin);	// momentary type buttons are used to increment and decrement values
+Button programButton(programPin);	// a toggle switch signals program mode for setting values
+
+WeldPattern weldPattern1(100);		// instantiate objects from WeldPattern Class
+WeldPattern weldPattern2(200);  	// each instance represents a weld pulse pattern that persists in memory
+WeldPattern weldPattern3(300); 		// by passing a memory location where the pattern should be stored
 
 void initializeHardware(void);
 

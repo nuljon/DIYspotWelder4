@@ -7,13 +7,15 @@ void WeldPattern::start() {	// function to start the weld pulse at_ the _ peak a
 	while (!digitalRead(zeroCrossPin)); //AC < zero do nothing      \_/ |
 	delayMicroseconds(sinusMax_us); //beginning start after sinusMax_us |
 }
-void WeldPattern::pulseWeld(unsigned long pulse, Button& weldButton, const uint8_t& controlPin) {
+void WeldPattern::pulseWeld(unsigned long pulse, Button& weldButton, const uint8_t& welderControlPin) {
 	PRINT("\n executing weld pulse: ", pulse);	//debug PRINT pulse
 	thermalControl.lcd.setRGB(255, 255, 255); //flash white backlight while welding
 	bool stop = false;
 	unsigned long start = millis(); // mark the start time
 	while (!stop) {
-		digitalWrite(controlPin, HIGH);				// turn on the weld current
+		digitalWrite(welderControlPin, HIGH);				// turn on the weld current
+		PRINT("\n controlPin: ",welderControlPin);
+		PRINT("\t reading: ", digitalRead(welderControlPin));
 		PRINTS("\n zzzzzzzzzt");					//debug PRINT
 		if (pulse == 0l) {							// pulse is set to continuous
 			stop = weldButton.read();				// stop if button not pressed
@@ -22,7 +24,7 @@ void WeldPattern::pulseWeld(unsigned long pulse, Button& weldButton, const uint8
 		else stop = (millis() >= start + pulse);	// stop on reaching pulse length
 		int temperature = thermalControl.getTemperature(); // thermal control can suspend weld loop
 	}
-	digitalWrite(controlPin, LOW);					// turn off the weld current
+	digitalWrite(welderControlPin, LOW);					// turn off the weld current
 	thermalControl.lcd.setRGB(0, 0, 255);			//revert backlight color
 }
 void WeldPattern::pause(unsigned long wait) {
@@ -35,18 +37,18 @@ void WeldPattern::begin()
 void WeldPattern::weld(Button& weldButton)
 {
 	PRINTS("\n PuBLiC WeLD function CaLLING PRIVATE WELD");	
-	weld(weldButton, controlPin);
+	weld(weldButton, welderControlPin);
 }
-void WeldPattern::weld(Button& weldButton, const uint8_t& controlPin) {
+void WeldPattern::weld(Button& weldButton, const uint8_t& welderControlPin) {
 	
 	PRINT("\n executing weld pattern: ", int(weldData.preWeldPulse));//debug PRINT legth of prew-weld pulse
 	PRINT("/", int(weldData.pausePulse));			//debug PRINT length of pause
 	PRINT("/", int(weldData.weldPulse));			//debug PRINT length of weld pulse
 	start();										// detect zerocrossing and time the pulse start
-	pulseWeld(this -> weldData.preWeldPulse, weldButton, controlPin);
+	pulseWeld(this -> weldData.preWeldPulse, weldButton, welderControlPin);
 	pause(this -> weldData.pausePulse);
 	start();										// detect zerocrossing and time the pulse start
-	pulseWeld(this -> weldData.weldPulse, weldButton, controlPin);
+	pulseWeld(this -> weldData.weldPulse, weldButton, welderControlPin);
 }
 // TODO handle screen writes displaying greater than 16 columns
 void WeldPattern::display(uint8_t num){				// display weldPattern(num)

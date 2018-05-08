@@ -19,7 +19,7 @@ A resistance welder with these Functions:
 		 a thermistor to detect the temperarure, transistor to switch a DC fan motor for cooling, 
          a Grove RGB backlight LCD display to give visual signals (resitance welders should not arc),
 		 a few resistors, LED, capacitors, diodes, and an Arduino micro controler
-		 to rule the the whole pile and run the code that follows.
+		 to rule the the whole pile and run the code.
 
 
 works with the circuit, SpotWelder v4.0,   
@@ -41,9 +41,9 @@ VOLTS zeroCross-->                /____\ ____ /____\ ____ /____\ ____ /____\ ___
 								      ____        ____        ____        ____        ____
 AMPS lag 90 degrees->				 /____\ ____ /____\ ____ /____\ ____ /____\ ____ /____\ __
 										   \____/      \____/      \____/      \____/      \__
-									   _________________________________
-begin weld at max power				  |									|
-					  ________________|     preWeld pulse				|__________________
+									  __________________________________
+begin weld at max power				 |									|
+					  _______________|     		preWeld pulse			|__________________
 								      <----------50ms-------------------><----- pause before main pulse */
 									  rotory switch for the MODE selector.
 The pins are configured as active low
